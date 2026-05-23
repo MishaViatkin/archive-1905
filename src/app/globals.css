@@ -1,0 +1,318 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --paper: #f4ecd8;
+  --paper-dark: #1f1b16;
+  --ink: #2b231b;
+  --ink-faded: #5a4a3a;
+  --sepia: #c4a875;
+  --accent: #a4271c;
+  --accent-glow: rgba(164, 39, 28, 0.45);
+  --stamp: #7a1e15;
+  --thread: #6b5947;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-dark: var(--paper-dark);
+  --color-ink: var(--ink);
+  --color-ink-faded: var(--ink-faded);
+  --color-sepia: var(--sepia);
+  --color-accent: var(--accent);
+  --color-stamp: var(--stamp);
+  --color-thread: var(--thread);
+  --font-display: var(--font-display);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+body {
+  background-image:
+    radial-gradient(at 20% 10%, rgba(122, 30, 21, 0.04) 0%, transparent 50%),
+    radial-gradient(at 80% 90%, rgba(43, 35, 27, 0.06) 0%, transparent 50%),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(43, 35, 27, 0.018) 3px,
+      rgba(43, 35, 27, 0.018) 4px
+    );
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+/* === ARCHIVAL TYPOGRAPHY === */
+
+.font-display {
+  font-family: var(--font-display), "Old Standard TT", "Cormorant Garamond", serif;
+  letter-spacing: -0.01em;
+}
+
+.drop-cap::first-letter {
+  font-family: var(--font-display), serif;
+  float: left;
+  font-size: 4.5rem;
+  line-height: 0.85;
+  padding: 0.3rem 0.6rem 0 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* === NEWSPAPER COLUMNS === */
+
+.newspaper-cols {
+  column-count: 1;
+  column-gap: 2.5rem;
+  column-rule: 1px dotted rgba(43, 35, 27, 0.25);
+}
+
+@media (min-width: 768px) {
+  .newspaper-cols {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1280px) {
+  .newspaper-cols.cols-3 {
+    column-count: 3;
+  }
+}
+
+.newspaper-cols p {
+  break-inside: avoid;
+}
+
+/* === STAMPS === */
+
+.stamp {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border: 3px solid var(--stamp);
+  color: var(--stamp);
+  font-family: var(--font-display), serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transform: rotate(-7deg);
+  background: rgba(244, 236, 216, 0.5);
+  opacity: 0.85;
+}
+
+.stamp.lacuna {
+  border-color: #7a1e15;
+  color: #7a1e15;
+}
+
+.stamp.classified {
+  border-color: #2b231b;
+  color: #2b231b;
+  transform: rotate(4deg);
+}
+
+.stamp-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  border: 3px solid var(--stamp);
+  border-radius: 50%;
+  color: var(--stamp);
+  font-family: var(--font-display), serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-align: center;
+  transform: rotate(-12deg);
+  opacity: 0.8;
+  line-height: 1;
+}
+
+/* === DOCUMENT CARD === */
+
+.doc-card {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 252, 240, 0.96) 0%,
+      rgba(244, 236, 216, 0.92) 100%
+    );
+  box-shadow:
+    0 1px 0 rgba(43, 35, 27, 0.05),
+    0 6px 24px rgba(43, 35, 27, 0.12),
+    inset 0 0 60px rgba(196, 168, 117, 0.18);
+  border: 1px solid rgba(122, 30, 21, 0.15);
+}
+
+.doc-edge {
+  position: relative;
+}
+
+.doc-edge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 96%,
+    rgba(43, 35, 27, 0.1) 100%
+  );
+}
+
+/* === TYPEWRITER CARET === */
+
+.caret::after {
+  content: "▌";
+  margin-left: 2px;
+  color: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* === DARK ARCHIVE SECTIONS === */
+
+.archive-dark {
+  background:
+    radial-gradient(at 30% 20%, #2a221a 0%, transparent 60%),
+    linear-gradient(135deg, #1c1611 0%, #1f1a13 100%);
+  color: #e6d7b8;
+}
+
+.archive-dark .stamp,
+.archive-dark .stamp-circle {
+  border-color: #c4503f;
+  color: #c4503f;
+  background: rgba(28, 22, 17, 0.4);
+}
+
+/* === MASTHEAD RULES === */
+
+.rule-double {
+  border-top: 3px double var(--ink);
+}
+
+.rule-thick-thin {
+  border-top: 4px solid var(--ink);
+  position: relative;
+}
+
+.rule-thick-thin::after {
+  content: "";
+  display: block;
+  border-top: 1px solid var(--ink);
+  margin-top: 3px;
+}
+
+/* === SCROLL TIMELINE === */
+
+.tick {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 7px,
+    var(--ink-faded) 7px,
+    var(--ink-faded) 8px
+  );
+}
+
+/* === SVG ATLAS ANIMATIONS === */
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.25; transform: scale(0.9); }
+  50% { opacity: 0.85; transform: scale(1.1); }
+}
+
+@keyframes ringExpand {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.atlas-glow {
+  animation: pulseGlow 2.4s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.atlas-ring {
+  animation: ringExpand 3s ease-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.atlas-marker {
+  transition: r 220ms ease, fill 220ms ease;
+}
+
+.atlas-marker.is-hover {
+  filter: drop-shadow(0 0 6px rgba(164, 39, 28, 0.55));
+}
+
+/* === NETWORK NODE ANIMATIONS === */
+
+@keyframes activeRing {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(1.25); }
+}
+
+.net-active-ring {
+  animation: activeRing 2.2s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.net-node {
+  transition: opacity 250ms ease, transform 250ms ease;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.net-node circle {
+  transition: r 220ms ease, stroke-width 220ms ease;
+}
+
+.net-node.is-faded {
+  opacity: 0.25;
+}
+
+.net-node.is-active {
+  transform: scale(1.08);
+}
+
+.net-link {
+  transition: stroke-width 200ms ease, stroke-opacity 200ms ease;
+}
+
+/* === PRINT === */
+
+@media print {
+  body {
+    background: white;
+  }
+  .print\:hidden,
+  .print-hidden {
+    display: none !important;
+  }
+}

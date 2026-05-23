@@ -1,0 +1,20 @@
+{
+  "id": "strikes-1900-1904",
+  "title": "Динамика стачечного движения на Урале (1900–1904)",
+  "section": "§2.2",
+  "source": "Большевики Среднего Урала в революции 1905–1907 годов. Свердловск, 1956. С. 10–12.",
+  "columns": [
+    { "key": "year", "label": "Год" },
+    { "key": "participants", "label": "Участники стачек" },
+    { "key": "political", "label": "Политические стачки" },
+    { "key": "note", "label": "Примечание" }
+  ],
+  "rows": [
+    { "year": "1900", "participants": "ок. 3 200", "political": "единичные случаи", "note": "с. 10" },
+    { "year": "1901", "participants": "ок. 4 500", "political": "ок. 10%", "note": "с. 10–11" },
+    { "year": "1902", "participants": "ок. 5 800", "political": "ок. 18%", "note": "с. 11" },
+    { "year": "1903", "participants": "ок. 6 500", "political": "ок. 25%", "note": "с. 11–12" },
+    { "year": "1904", "participants": "ок. 5 000", "political": "ок. 30%", "note": "с. 12" },
+    { "year": "Итого", "participants": "ок. 25 000", "political": "—", "note": "суммарно" }
+  ]
+}
