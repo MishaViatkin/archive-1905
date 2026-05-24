@@ -11,31 +11,31 @@ export function Header({ searchIndex }: { searchIndex: SearchItem[] }) {
 
   return (
     <header className="sticky top-0 z-40 border-b-4 border-double border-ink/80 bg-paper/95 backdrop-blur print:hidden">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
         <Link href="/" className="group flex items-baseline gap-3">
-          <span className="font-display text-2xl font-bold tracking-tight text-ink group-hover:text-accent">
+          <span className="font-display text-xl font-bold tracking-tight text-ink group-hover:text-accent xl:text-2xl">
             АРХИВ 1905
           </span>
-          <span className="hidden text-xs uppercase tracking-[0.2em] text-ink-faded lg:inline">
-            · Екатеринбургское отделение
+          <span className="hidden text-xs uppercase tracking-[0.2em] text-ink-faded xl:inline">
+            · Екатеринбург
           </span>
         </Link>
 
-        <nav className="hidden gap-1 lg:flex">
-          {mainNav.slice(0, 6).map((item) => {
+        <nav className="hidden flex-1 items-center justify-center gap-0.5 lg:flex">
+          {mainNav.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`group relative px-2.5 py-1 text-sm transition ${
+                className={`group relative whitespace-nowrap px-2 py-1 text-sm transition ${
                   active ? "text-accent" : "text-ink/70 hover:text-ink"
                 }`}
               >
-                <span className="font-display text-xs tracking-[0.2em] opacity-60">
+                <span className="font-display text-[10px] tracking-[0.18em] opacity-60">
                   {item.number}
                 </span>
-                <span className="ml-1.5 font-display tracking-wide">
+                <span className="ml-1 font-display tracking-wide">
                   {item.label}
                 </span>
                 {active && (
