@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HistoryEvent, Place } from "@/lib/types";
 
@@ -68,11 +69,79 @@ function projectLng(lng: number) {
   return ((lng - BBOX.lngMin) / (BBOX.lngMax - BBOX.lngMin)) * SVG_W;
 }
 
+// Per-place label offsets to avoid overlap in dense clusters.
+type AnchorType = "start" | "end" | "middle";
+const LABEL_OFFSETS: Record<
+  string,
+  { dx: number; dy: number; anchor: AnchorType }
+> = {
+  viz: { dx: -12, dy: -10, anchor: "end" },
+  "viz-narodny-dom": { dx: 12, dy: 10, anchor: "start" },
+  kafedralnaya: { dx: -12, dy: 4, anchor: "end" },
+  "music-school": { dx: 12, dy: 4, anchor: "start" },
+  theater: { dx: 12, dy: 4, anchor: "start" },
+  makarov: { dx: 12, dy: 4, anchor: "start" },
+  yates: { dx: 12, dy: 4, anchor: "start" },
+  loginov: { dx: -12, dy: 4, anchor: "end" },
+};
+
 export function TimeAtlas({ places, events }: TimeAtlasProps) {
-  const [step, setStep] = useState(toIndex(1905, 10));
-  const [selectedId, setSelectedId] = useState<string | null>("ekb");
+  const searchParams = useSearchParams();
+  const focusId = searchParams?.get("focus") ?? null;
+  const focusDate = searchParams?.get("date") ?? null;
+
+  const initialSelected =
+    focusId && places.some((p) => p.id === focusId)
+      ? focusId
+      : places[0]?.id ?? null;
+
+  const initialStep = useMemo(() => {
+    // If a date is provided as YYYY-MM-DD, jump to its month.
+    if (focusDate) {
+      const d = new Date(focusDate);
+      if (!Number.isNaN(d.getTime())) {
+        return toIndex(d.getFullYear(), d.getMonth());
+      }
+    }
+    // If only focus is given, jump to the FIRST event of that place
+    // (so the user immediately sees the place "active").
+    if (focusId) {
+      const e = events
+        .filter((ev) => ev.placeId === focusId)
+        .sort((a, b) => a.date.localeCompare(b.date))[0];
+      if (e) {
+        const d = new Date(e.date);
+        return toIndex(d.getFullYear(), d.getMonth());
+      }
+    }
+    return toIndex(1905, 10);
+  }, [focusDate, focusId, events]);
+
+  const [step, setStep] = useState(initialStep);
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelected);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<number>(500);
+
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  // When the URL focus changes (e.g., user re-navigates), update state.
+  useEffect(() => {
+    if (focusId && places.some((p) => p.id === focusId)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedId(focusId);
+      const e = events
+        .filter((ev) => ev.placeId === focusId)
+        .sort((a, b) => a.date.localeCompare(b.date))[0];
+      if (e) {
+        const d = new Date(e.date);
+        setStep(toIndex(d.getFullYear(), d.getMonth()));
+      }
+      const t = setTimeout(() => {
+        mapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      return () => clearTimeout(t);
+    }
+  }, [focusId, events, places]);
 
   const cur = fromIndex(step);
 
@@ -125,7 +194,7 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
   }, [events, selectedId]);
 
   return (
-    <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div ref={mapRef} className="mt-10 grid gap-8 scroll-mt-24 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="doc-card relative overflow-hidden rounded-sm">
         <svg
           viewBox={`0 0 ${SVG_W} ${SVG_H}`}
@@ -144,66 +213,99 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
 
           <rect width={SVG_W} height={SVG_H} fill="url(#paper)" />
 
-          {/* City pond — Городской пруд (схематично, западная часть) */}
+          {/* City pond — северо-западная часть города, рядом с ВИЗом */}
           <path
-            d="M 60 200 Q 120 240 180 230 Q 240 250 280 290 Q 320 330 300 370 Q 260 410 200 400 Q 140 380 110 340 Q 80 290 60 200 Z"
-            fill="rgba(120, 150, 180, 0.25)"
+            d="M 40 40 Q 130 60 200 110 Q 260 160 280 220 Q 270 280 220 290 Q 160 280 110 240 Q 70 180 40 100 Z"
+            fill="rgba(120, 150, 180, 0.22)"
             stroke="#5a7a9a"
             strokeOpacity="0.5"
             strokeWidth="1.2"
           />
 
-          {/* Iset river flowing through */}
+          {/* Iset river — впадает в пруд с севера и вытекает на юго-восток */}
           <path
-            d="M 60 200 Q 100 100 200 70"
+            d="M 80 0 Q 90 20 70 50"
             fill="none"
             stroke="#5a7a9a"
             strokeOpacity="0.6"
             strokeWidth="1.5"
           />
           <path
-            d="M 280 290 Q 360 360 460 380 Q 580 420 720 480"
+            d="M 280 220 Q 360 280 460 320 Q 580 380 720 470"
             fill="none"
             stroke="#5a7a9a"
             strokeOpacity="0.6"
             strokeWidth="1.5"
           />
 
-          {/* Main avenue grid */}
+          {/* Главный проспект (восток-запад через центр) */}
+          <line
+            x1={20}
+            y1={280}
+            x2={SVG_W - 20}
+            y2={280}
+            stroke="#5a4a3a"
+            strokeOpacity="0.32"
+            strokeWidth="1.4"
+          />
+          <text
+            x={SVG_W - 30}
+            y={273}
+            fontFamily="serif"
+            fontSize="9"
+            fontStyle="italic"
+            fill="#5a4a3a"
+            opacity={0.7}
+            textAnchor="end"
+          >
+            Главный проспект
+          </text>
+
+          {/* Сетка кварталов */}
           {Array.from({ length: 4 }).map((_, i) => (
             <line
               key={`h-${i}`}
               x1={20}
-              y1={150 + i * 80}
+              y1={150 + i * 90}
               x2={SVG_W - 20}
-              y2={150 + i * 80}
+              y2={150 + i * 90}
               stroke="#5a4a3a"
-              strokeOpacity="0.18"
-              strokeWidth="0.8"
-              strokeDasharray="2 4"
+              strokeOpacity="0.1"
+              strokeWidth="0.6"
+              strokeDasharray="2 5"
             />
           ))}
           {Array.from({ length: 5 }).map((_, i) => (
             <line
               key={`v-${i}`}
-              x1={150 + i * 120}
+              x1={170 + i * 130}
               y1={20}
-              x2={150 + i * 120}
+              x2={170 + i * 130}
               y2={SVG_H - 20}
               stroke="#5a4a3a"
-              strokeOpacity="0.18"
-              strokeWidth="0.8"
-              strokeDasharray="2 4"
+              strokeOpacity="0.1"
+              strokeWidth="0.6"
+              strokeDasharray="2 5"
             />
           ))}
+
+          {/* Compass */}
+          <g transform="translate(740, 60)">
+            <circle r="22" fill="none" stroke="#5a4a3a" strokeOpacity="0.4" strokeWidth="0.8" />
+            <text x="0" y="-26" textAnchor="middle" fontFamily="serif" fontSize="11" fill="#5a4a3a">N</text>
+            <text x="0" y="36" textAnchor="middle" fontFamily="serif" fontSize="11" fill="#5a4a3a">S</text>
+            <text x="-30" y="4" textAnchor="middle" fontFamily="serif" fontSize="11" fill="#5a4a3a">W</text>
+            <text x="30" y="4" textAnchor="middle" fontFamily="serif" fontSize="11" fill="#5a4a3a">E</text>
+            <path d="M 0 -18 L 4 0 L 0 18 L -4 0 Z" fill="#a4271c" opacity={0.7} />
+          </g>
 
           <text x="20" y="30" fontFamily="serif" fontSize="11" fill="#5a4a3a" letterSpacing="2">
             ЕКАТЕРИНБУРГЪ · СХЕМА 1905
           </text>
-          <text x="100" y="180" fontFamily="serif" fontSize="9" fontStyle="italic" fill="#5a7a9a">
+          <text x="130" y="170" fontFamily="serif" fontSize="9" fontStyle="italic" fill="#5a7a9a">
             Городской пруд
           </text>
-          <text x="500" y="430" fontFamily="serif" fontSize="9" fontStyle="italic" fill="#5a7a9a">
+          <text x="600" y="450" fontFamily="serif" fontSize="9" fontStyle="italic" fill="#5a7a9a">
             р. Исеть
           </text>
           <text x="20" y={SVG_H - 16} fontFamily="monospace" fontSize="10" fill="#5a4a3a">
@@ -227,7 +329,12 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
             const active = evs.length > 0;
             const intensity = Math.min(evs.length, 3);
             const isSelected = selectedId === p.id;
+            const isFocus = focusId === p.id;
             const baseR = active ? 6 + intensity : 5;
+            // Custom label offsets so close clusters (ВИЗ + народный дом,
+            // Кафедральная + Музучилище) don't overlap.
+            const labelOffset =
+              LABEL_OFFSETS[p.id] ?? { dx: 12, dy: 4, anchor: "start" };
 
             return (
               <g
@@ -239,6 +346,32 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
               >
                 {/* Big hit area for easier click */}
                 <circle cx={cx} cy={cy} r={26} fill="transparent" />
+
+                {/* Focus highlight — when navigated from /dossier?focus=… */}
+                {isFocus && (
+                  <>
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={42}
+                      fill="none"
+                      stroke="#a4271c"
+                      strokeWidth="1.5"
+                      strokeDasharray="3 3"
+                      opacity={0.6}
+                    />
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={60}
+                      fill="none"
+                      stroke="#a4271c"
+                      strokeWidth="0.8"
+                      opacity={0.5}
+                      className="atlas-ring"
+                    />
+                  </>
+                )}
 
                 {active && (
                   <>
@@ -267,30 +400,34 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={isSelected ? baseR + 3 : baseR}
+                  r={isFocus ? baseR + 5 : isSelected ? baseR + 3 : baseR}
                   fill={active ? "#a4271c" : "#5a4a3a"}
-                  stroke={isSelected ? "#2b231b" : "#f4ecd8"}
-                  strokeWidth={isSelected ? 2.5 : 2}
-                  className={`atlas-marker ${isSelected ? "is-hover" : ""}`}
+                  stroke={isFocus || isSelected ? "#2b231b" : "#f4ecd8"}
+                  strokeWidth={isFocus ? 3 : isSelected ? 2.5 : 2}
+                  className={`atlas-marker ${
+                    isFocus || isSelected ? "is-hover" : ""
+                  }`}
                 />
 
                 <text
-                  x={cx + 12}
-                  y={cy + 4}
+                  x={cx + labelOffset.dx}
+                  y={cy + labelOffset.dy}
                   fontFamily="serif"
-                  fontSize={isSelected ? 14 : 13}
+                  fontSize={isFocus || isSelected ? 14 : 13}
                   fill="#2b231b"
-                  fontWeight={active || isSelected ? 700 : 400}
+                  fontWeight={active || isSelected || isFocus ? 700 : 400}
+                  textAnchor={labelOffset.anchor}
                 >
                   {p.name}
                 </text>
                 {active && (
                   <text
-                    x={cx + 12}
-                    y={cy + 20}
+                    x={cx + labelOffset.dx}
+                    y={cy + labelOffset.dy + 14}
                     fontFamily="monospace"
                     fontSize="10"
                     fill="#a4271c"
+                    textAnchor={labelOffset.anchor}
                   >
                     {evs.length} соб.
                   </text>

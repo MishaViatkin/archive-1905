@@ -233,11 +233,14 @@ function ChapterLinks({
   placeMap: Map<string, Place>;
 }) {
   const place = chapter.placeId ? placeMap.get(chapter.placeId) : null;
+  const mapHref = place
+    ? `/atlas?focus=${place.id}&date=${chapter.date}`
+    : "/atlas";
   return (
     <div className="mt-5 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-widest text-ink-faded">
       {place && (
         <Link
-          href={"/atlas" as never}
+          href={mapHref as never}
           className="rounded-full border border-ink/30 px-3 py-1 hover:border-accent hover:text-accent"
         >
           📍 на карте · {place.name}

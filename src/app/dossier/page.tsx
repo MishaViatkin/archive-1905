@@ -70,19 +70,19 @@ export default function DossierPage() {
 
             <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-dashed border-ink/20 pt-3 text-[10px] uppercase tracking-widest text-ink-faded">
               <Link
-                href="/atlas"
+                href={`/atlas?focus=${e.id}` as never}
                 className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
               >
-                📍 на карте
+                📍 показать на карте
               </Link>
               <Link
-                href="/chronicle"
+                href={"/chronicle" as never}
                 className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
               >
                 🕰 в хронике
               </Link>
               <Link
-                href="/network"
+                href={"/network" as never}
                 className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
               >
                 👥 фигуранты
