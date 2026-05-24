@@ -9,7 +9,7 @@ const SHORT: Record<string, string> = {
   "/atlas": "Атлас",
   "/network": "Сеть",
   "/dossier": "Досье",
-  "/lacunae": "Лакуны",
+  "/source-base": "База",
   "/legacy": "Наследие",
   "/glossary": "Словарь",
   "/sources": "Карт.",

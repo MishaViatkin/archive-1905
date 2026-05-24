@@ -31,10 +31,10 @@ export const mainNav: NavSection[] = [
     description: "Жандармские карточки предприятий",
   },
   {
-    href: "/lacunae",
-    label: "Лакуны",
+    href: "/source-base",
+    label: "Источники",
     number: "V",
-    description: "Белые пятна — то, что ещё предстоит выяснить",
+    description: "Декларация источниковой базы — только опубликованное",
   },
   {
     href: "/legacy",

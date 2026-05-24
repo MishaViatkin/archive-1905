@@ -56,7 +56,8 @@ function fromIndex(idx: number) {
 
 const TOTAL_STEPS = toIndex(TIMELINE_END.year, TIMELINE_END.month);
 
-const BBOX = { latMin: 56.3, latMax: 58.3, lngMin: 59.6, lngMax: 62.0 };
+// Tight bounding box around historical Yekaterinburg centre (1905 layout)
+const BBOX = { latMin: 56.815, latMax: 56.865, lngMin: 60.540, lngMax: 60.640 };
 const SVG_W = 800;
 const SVG_H = 540;
 
@@ -143,44 +144,67 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
 
           <rect width={SVG_W} height={SVG_H} fill="url(#paper)" />
 
+          {/* City pond — Городской пруд (схематично, западная часть) */}
           <path
-            d="M 80 80 L 720 100 L 740 220 L 700 380 L 620 480 L 460 500 L 280 470 L 140 380 L 60 240 Z"
-            fill="rgba(196, 168, 117, 0.12)"
-            stroke="#5a4a3a"
-            strokeWidth="2"
-            strokeDasharray="6 4"
+            d="M 60 200 Q 120 240 180 230 Q 240 250 280 290 Q 320 330 300 370 Q 260 410 200 400 Q 140 380 110 340 Q 80 290 60 200 Z"
+            fill="rgba(120, 150, 180, 0.25)"
+            stroke="#5a7a9a"
+            strokeOpacity="0.5"
+            strokeWidth="1.2"
           />
 
+          {/* Iset river flowing through */}
           <path
-            d="M 200 80 Q 280 200 220 320 Q 200 400 280 470"
+            d="M 60 200 Q 100 100 200 70"
             fill="none"
-            stroke="#5a4a3a"
-            strokeOpacity="0.45"
+            stroke="#5a7a9a"
+            strokeOpacity="0.6"
             strokeWidth="1.5"
           />
           <path
-            d="M 500 100 Q 540 220 580 320 Q 600 420 620 480"
+            d="M 280 290 Q 360 360 460 380 Q 580 420 720 480"
             fill="none"
-            stroke="#5a4a3a"
-            strokeOpacity="0.45"
+            stroke="#5a7a9a"
+            strokeOpacity="0.6"
             strokeWidth="1.5"
           />
 
-          {Array.from({ length: 12 }).map((_, i) => (
+          {/* Main avenue grid */}
+          {Array.from({ length: 4 }).map((_, i) => (
             <line
-              key={i}
-              x1={140 + i * 22}
-              y1={130 + i * 18}
-              x2={140 + i * 22 + 8}
-              y2={130 + i * 18 - 8}
+              key={`h-${i}`}
+              x1={20}
+              y1={150 + i * 80}
+              x2={SVG_W - 20}
+              y2={150 + i * 80}
               stroke="#5a4a3a"
-              strokeOpacity="0.5"
-              strokeWidth="1"
+              strokeOpacity="0.18"
+              strokeWidth="0.8"
+              strokeDasharray="2 4"
+            />
+          ))}
+          {Array.from({ length: 5 }).map((_, i) => (
+            <line
+              key={`v-${i}`}
+              x1={150 + i * 120}
+              y1={20}
+              x2={150 + i * 120}
+              y2={SVG_H - 20}
+              stroke="#5a4a3a"
+              strokeOpacity="0.18"
+              strokeWidth="0.8"
+              strokeDasharray="2 4"
             />
           ))}
 
           <text x="20" y="30" fontFamily="serif" fontSize="11" fill="#5a4a3a" letterSpacing="2">
-            ПЕРМСКАЯ ГУБЕРНIЯ · СХЕМА
+            ЕКАТЕРИНБУРГЪ · СХЕМА 1905
+          </text>
+          <text x="100" y="180" fontFamily="serif" fontSize="9" fontStyle="italic" fill="#5a7a9a">
+            Городской пруд
+          </text>
+          <text x="500" y="430" fontFamily="serif" fontSize="9" fontStyle="italic" fill="#5a7a9a">
+            р. Исеть
           </text>
           <text x="20" y={SVG_H - 16} fontFamily="monospace" fontSize="10" fill="#5a4a3a">
             {MONTHS[cur.month]} {cur.year}

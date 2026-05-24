@@ -1,6 +1,5 @@
 import events from "@/content/data/events.json";
 import places from "@/content/data/places.json";
-import lacunae from "@/content/data/lacunae.json";
 import sources from "@/content/data/sources.json";
 import enterprises1904 from "@/content/data/enterprises-1904.json";
 import strikes1900 from "@/content/data/strikes-1900-1904.json";
@@ -22,7 +21,6 @@ import type {
   GlossaryTerm,
   HistoryEvent,
   ImpactDimension,
-  Lacuna,
   LegacyEvent,
   Person,
   Place,
@@ -39,20 +37,12 @@ export function getPlaces(): Place[] {
   return places as Place[];
 }
 
-export function getLacunae(): Lacuna[] {
-  return lacunae as Lacuna[];
-}
-
 export function getSources(): Source[] {
   return sources as Source[];
 }
 
 export function getSourceById(id: string): Source | undefined {
   return getSources().find((s) => s.id === id);
-}
-
-export function getLacunaById(id: string): Lacuna | undefined {
-  return getLacunae().find((l) => l.id === id);
 }
 
 export function getTables(): DataTableConfig[] {
@@ -128,16 +118,6 @@ export function getSearchIndex(): SearchItem[] {
       subtitle: p.role,
       body: p.bio,
       href: "/network",
-    });
-  }
-  for (const l of getLacunae()) {
-    out.push({
-      id: `lacuna-${l.id}`,
-      kind: "lacuna",
-      title: `Лакуна · ${l.section}`,
-      subtitle: l.archiveHint,
-      body: l.question,
-      href: `/lacunae#${l.id}`,
     });
   }
   for (const s of getSources()) {

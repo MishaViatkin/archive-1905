@@ -46,10 +46,10 @@ export default function NotFound() {
           В картотеку
         </Link>
         <Link
-          href={"/lacunae" as never}
+          href={"/source-base" as never}
           className="rounded border border-ink/30 px-4 py-2 text-sm uppercase tracking-widest text-ink/70 hover:bg-ink/5"
         >
-          К лакунам
+          К источникам
         </Link>
       </div>
     </div>

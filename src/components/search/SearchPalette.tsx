@@ -9,7 +9,6 @@ import type { SearchItem, SearchItemKind } from "@/lib/types";
 const KIND_LABEL: Record<SearchItemKind, string> = {
   event: "Событие",
   person: "Фигурант",
-  lacuna: "Лакуна",
   source: "Источник",
   term: "Термин",
   place: "Место",
@@ -20,7 +19,6 @@ const KIND_LABEL: Record<SearchItemKind, string> = {
 const KIND_COLOR: Record<SearchItemKind, string> = {
   event: "#a4271c",
   person: "#1f2a44",
-  lacuna: "#7a1e15",
   source: "#3a4a3a",
   term: "#6b5326",
   place: "#5a4a3a",

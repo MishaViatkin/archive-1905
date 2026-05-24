@@ -7,8 +7,8 @@ export function HomeMasthead() {
   return (
     <header className="border-y-4 border-double border-ink py-6">
       <div className="flex flex-wrap items-end justify-between gap-4 text-xs uppercase tracking-[0.2em] text-ink-faded">
-        <span>Выпуск № 1 · Третья редакция</span>
-        <span>Цена · бесплатно для исследования</span>
+        <span>УрФУ · группа ЭУ-153604</span>
+        <span>Аналитическая работа</span>
         <span>Екатеринбург · 1905–1907</span>
       </div>
 
@@ -27,14 +27,14 @@ export function HomeMasthead() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
-        Цифровое расследование о первой русской революции
-        <br className="hidden md:inline" /> на территории современной
-        Свердловской области
+        Революция 1905–1907 годов в Екатеринбурге —
+        <br className="hidden md:inline" /> от рабочего подполья до первого
+        Совета депутатов
       </motion.p>
 
       <div className="mx-auto mt-6 max-w-3xl text-center font-mono text-xs uppercase tracking-[0.25em] text-accent">
         <Typewriter
-          text="от подпольной типографии до первого Совета рабочих депутатов"
+          text="9 источников · 28 митингов · 32 депутата · 1 совет"
           speed={28}
           startDelay={900}
         />
@@ -43,11 +43,11 @@ export function HomeMasthead() {
       <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs uppercase tracking-[0.2em] text-ink-faded">
         <span className="flex items-center gap-2">
           <span className="h-1 w-12 bg-ink-faded" />
-          фондовая база
+          только опубликованные источники
         </span>
-        <span>ГАСО · ГАПК · ЦДООСО</span>
+        <span>сборники · монографии · статьи</span>
         <span className="flex items-center gap-2">
-          7 лакун · 13 источников · 11 фигурантов
+          без архивных шифров — честно
           <span className="h-1 w-12 bg-ink-faded" />
         </span>
       </div>

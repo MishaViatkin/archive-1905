@@ -61,9 +61,9 @@ export function ChronicleScroll({ chapters, places = [] }: Props) {
           Хроника
         </h1>
         <p className="mt-3 max-w-2xl text-ink-faded">
-          {chapters.length} сцен — от кризиса горнозаводского Урала 1900–1903
-          до «тихих» уступок 1906–1907 годов. Прокручивайте: слева отмечается
-          время, справа сменяются цитаты архива.
+          {chapters.length} сцен — от условий труда и Кровавого воскресенья
+          до создания Совета и преемственности 1917 года. Прокручивайте: слева
+          отмечается время, справа сменяются цитаты опубликованных источников.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
           <button
@@ -249,10 +249,10 @@ function ChapterLinks({
         👥 фигуранты
       </Link>
       <Link
-        href={"/lacunae" as never}
+        href={"/source-base" as never}
         className="rounded-full border border-ink/30 px-3 py-1 hover:border-accent hover:text-accent"
       >
-        ⚠ связанные лакуны
+        ◇ источниковая база
       </Link>
     </div>
   );

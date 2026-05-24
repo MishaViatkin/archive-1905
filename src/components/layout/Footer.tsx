@@ -11,9 +11,10 @@ export function Footer() {
           <div className="sm:col-span-2">
             <p className="font-display text-base text-ink">АРХИВ 1905</p>
             <p className="mt-2 text-xs leading-relaxed">
-              Цифровое расследование по аналитической работе УрФУ, кафедра
-              отечественной истории. Все цифры сопровождаются ссылкой на
-              источник; лакуны не скрываются. Третья редакция, расширенная.
+              Цифровое сопровождение аналитической работы по дисциплине
+              «Отечественная история». УрФУ, кафедра отечественной истории,
+              студенты группы ЭУ-153604. Работа опирается исключительно на
+              опубликованные источники — без архивных шифров.
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <ShareLink />
@@ -40,17 +41,17 @@ export function Footer() {
             </ul>
           </div>
           <div className="text-xs">
-            <p className="font-display text-ink">Архивные фонды</p>
+            <p className="font-display text-ink">Источниковая база</p>
             <ul className="mt-2 space-y-1">
-              <li>ГАСО · ф. 11, 185</li>
-              <li>ГАПК · ф. 65</li>
-              <li>ЦДООСО · ф. 41</li>
+              <li>· 3 документальных сборника</li>
+              <li>· 4 монографии</li>
+              <li>· 2 научные статьи</li>
             </ul>
             <p className="mt-3 font-display text-ink">Печать</p>
             <p className="mt-1">
-              13 источников · 15 фигурантов
+              9 источников · 14 фигурантов
               <br />
-              13 событий · 7 лакун · 20 терминов
+              11 сцен · 8 локаций · 18 терминов
             </p>
           </div>
         </div>

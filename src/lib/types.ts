@@ -21,7 +21,6 @@ export interface HistoryEvent {
   source: string;
   sourceId?: string;
   verified: boolean;
-  lacunaId?: string;
   year: number;
 }
 
@@ -33,14 +32,6 @@ export interface Place {
   role: string;
   summary: string;
   source?: string;
-}
-
-export interface Lacuna {
-  id: string;
-  section: string;
-  question: string;
-  archiveHint: string;
-  indirectData?: string;
 }
 
 export type SourceType = "archive" | "collection" | "periodical" | "research";
@@ -171,7 +162,6 @@ export interface ImpactDimension {
 export type SearchItemKind =
   | "event"
   | "person"
-  | "lacuna"
   | "source"
   | "term"
   | "place"
