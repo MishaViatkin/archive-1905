@@ -453,7 +453,7 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
         </svg>
       </div>
 
-      <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+      <aside className="space-y-4">
         <motion.div
           key={`${cur.year}-${cur.month}`}
           initial={{ opacity: 0, y: -8 }}
