@@ -47,7 +47,7 @@ export function HomeMasthead() {
         </span>
         <span>сборники · монографии · статьи</span>
         <span className="flex items-center gap-2">
-          без архивных шифров — честно
+          академическая прозрачность
           <span className="h-1 w-12 bg-ink-faded" />
         </span>
       </div>
