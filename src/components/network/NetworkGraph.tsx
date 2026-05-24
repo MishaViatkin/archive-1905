@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import type {
   Connection,
@@ -47,11 +48,36 @@ interface NetworkProps {
 }
 
 export function NetworkGraph({ people, connections }: NetworkProps) {
-  const [activeId, setActiveId] = useState<string>("sverdlov");
+  const searchParams = useSearchParams();
+  const focusId = searchParams?.get("focus") ?? null;
+  const validFocus =
+    focusId && people.some((p) => p.id === focusId) ? focusId : null;
+
+  const [activeId, setActiveId] = useState<string>(validFocus ?? "sverdlov");
   const [query, setQuery] = useState("");
   const [activeSides, setActiveSides] = useState<Set<PersonSide>>(
     () => new Set(SIDE_ORDER),
   );
+
+  // When URL focus changes, update active and scroll to the card.
+  useEffect(() => {
+    if (validFocus) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveId(validFocus);
+      const targetSide = people.find((p) => p.id === validFocus)?.side;
+      if (targetSide) {
+        setActiveSides((prev) =>
+          prev.has(targetSide) ? prev : new Set([...prev, targetSide]),
+        );
+      }
+      const t = setTimeout(() => {
+        document
+          .getElementById(`person-${validFocus}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 150);
+      return () => clearTimeout(t);
+    }
+  }, [validFocus, people]);
 
   const filteredPeople = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -378,12 +404,13 @@ function PersonCard({
   return (
     <motion.button
       type="button"
+      id={`person-${person.id}`}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.05 }}
       whileHover={{ y: -2 }}
       onClick={() => onSelect(person.id)}
-      className={`doc-card relative w-full rounded-sm p-4 text-left transition ${
+      className={`doc-card relative w-full scroll-mt-24 rounded-sm p-4 text-left transition ${
         active ? "ring-2 ring-offset-2 ring-offset-paper" : ""
       }`}
       style={{

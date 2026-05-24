@@ -1,8 +1,11 @@
-import { getChronicle, getPlaces } from "@/lib/content";
+import { getChronicle, getPeople, getPlaces } from "@/lib/content";
 import { ChronicleScroll } from "@/components/chronicle/ChronicleScroll";
 
 export default function ChroniclePage() {
   const chapters = getChronicle();
   const places = getPlaces();
-  return <ChronicleScroll chapters={chapters} places={places} />;
+  const people = getPeople();
+  return (
+    <ChronicleScroll chapters={chapters} places={places} people={people} />
+  );
 }

@@ -1,9 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HistoryEvent, Place } from "@/lib/types";
+
+// Map event ids to chronicle chapter ids so the atlas can link
+// straight to the right scene (#anchor) in /chronicle.
+const EVENT_TO_CHAPTER: Record<string, string> = {
+  "bloody-sunday": "bloody-sunday",
+  "may-day": "may-day",
+  "viz-strike": "viz-strike",
+  "october-manifesto": "october-manifesto",
+  pogrom: "pogrom",
+  council: "council",
+  repression: "repression",
+};
 
 interface TimeAtlasProps {
   places: Place[];
@@ -495,18 +508,35 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
                     В {MONTHS_FULL[cur.month].toLowerCase()} {cur.year}
                   </p>
                   <ul className="mt-1 space-y-2 text-xs">
-                    {selectedEvents.map((e, i) => (
-                      <motion.li
-                        key={e.id}
-                        initial={{ opacity: 0, x: -6 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="border-l-2 border-accent/60 pl-2"
-                      >
-                        <p className="font-display text-ink">{e.title}</p>
-                        <p className="text-ink-faded">{e.summary}</p>
-                      </motion.li>
-                    ))}
+                    {selectedEvents.map((e, i) => {
+                      const chapterId = EVENT_TO_CHAPTER[e.id];
+                      return (
+                        <motion.li
+                          key={e.id}
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.05 }}
+                          className="border-l-2 border-accent/60 pl-2"
+                        >
+                          {chapterId ? (
+                            <Link
+                              href={`/chronicle#${chapterId}` as never}
+                              className="block hover:text-accent"
+                            >
+                              <p className="font-display text-ink hover:text-accent">
+                                {e.title} →
+                              </p>
+                              <p className="text-ink-faded">{e.summary}</p>
+                            </Link>
+                          ) : (
+                            <>
+                              <p className="font-display text-ink">{e.title}</p>
+                              <p className="text-ink-faded">{e.summary}</p>
+                            </>
+                          )}
+                        </motion.li>
+                      );
+                    })}
                   </ul>
                 </>
               ) : (
@@ -542,15 +572,16 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
                 const d = new Date(e.date);
                 const isCurrent =
                   d.getFullYear() === cur.year && d.getMonth() === cur.month;
+                const chapterId = EVENT_TO_CHAPTER[e.id];
                 return (
-                  <li key={e.id}>
+                  <li key={e.id} className="flex gap-1">
                     <button
                       type="button"
                       onClick={() => {
                         setStep(toIndex(d.getFullYear(), d.getMonth()));
                         setSelectedId(e.placeId);
                       }}
-                      className={`block w-full rounded px-2 py-1.5 text-left transition ${
+                      className={`block flex-1 rounded px-2 py-1.5 text-left transition ${
                         isCurrent
                           ? "bg-accent/10 text-accent"
                           : "text-ink/80 hover:bg-ink/5"
@@ -566,6 +597,15 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
                       <br />
                       <span className="font-display">{e.title}</span>
                     </button>
+                    {chapterId && (
+                      <Link
+                        href={`/chronicle#${chapterId}` as never}
+                        className="flex items-center px-1.5 text-[10px] text-ink-faded hover:text-accent"
+                        title="К сцене в хронике"
+                      >
+                        →
+                      </Link>
+                    )}
                   </li>
                 );
               })}

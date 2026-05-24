@@ -3,14 +3,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useScroll, useSpring, useTransform } from "framer-motion";
-import type { ChronicleChapter, Place } from "@/lib/types";
+import type { ChronicleChapter, Person, Place } from "@/lib/types";
 
 interface Props {
   chapters: ChronicleChapter[];
   places?: Place[];
+  people?: Person[];
 }
 
-export function ChronicleScroll({ chapters, places = [] }: Props) {
+export function ChronicleScroll({
+  chapters,
+  places = [],
+  people = [],
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
 
@@ -19,6 +24,12 @@ export function ChronicleScroll({ chapters, places = [] }: Props) {
     for (const p of places) m.set(p.id, p);
     return m;
   }, [places]);
+
+  const personMap = useMemo(() => {
+    const m = new Map<string, Person>();
+    for (const p of people) m.set(p.id, p);
+    return m;
+  }, [people]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -204,7 +215,11 @@ export function ChronicleScroll({ chapters, places = [] }: Props) {
                   </p>
                 </blockquote>
               )}
-              <ChapterLinks chapter={c} placeMap={placeMap} />
+              <ChapterLinks
+                chapter={c}
+                placeMap={placeMap}
+                personMap={personMap}
+              />
             </section>
           ))}
         </div>
@@ -228,11 +243,16 @@ export function ChronicleScroll({ chapters, places = [] }: Props) {
 function ChapterLinks({
   chapter,
   placeMap,
+  personMap,
 }: {
   chapter: ChronicleChapter;
   placeMap: Map<string, Place>;
+  personMap: Map<string, Person>;
 }) {
   const place = chapter.placeId ? placeMap.get(chapter.placeId) : null;
+  const person = chapter.featurePersonId
+    ? personMap.get(chapter.featurePersonId)
+    : null;
   const mapHref = place
     ? `/atlas?focus=${place.id}&date=${chapter.date}`
     : "/atlas";
@@ -254,18 +274,29 @@ function ChapterLinks({
           📜 источник
         </Link>
       )}
-      <Link
-        href={"/network" as never}
-        className="rounded-full border border-ink/30 px-3 py-1 hover:border-accent hover:text-accent"
-      >
-        👥 фигуранты
-      </Link>
-      <Link
-        href={"/source-base" as never}
-        className="rounded-full border border-ink/30 px-3 py-1 hover:border-accent hover:text-accent"
-      >
-        ◇ источниковая база
-      </Link>
+      {person ? (
+        <Link
+          href={`/network?focus=${person.id}` as never}
+          className="rounded-full border border-ink/30 px-3 py-1 hover:border-accent hover:text-accent"
+        >
+          👥 {person.name}
+        </Link>
+      ) : (
+        <Link
+          href={"/network" as never}
+          className="rounded-full border border-ink/30 px-3 py-1 hover:border-accent hover:text-accent"
+        >
+          👥 фигуранты
+        </Link>
+      )}
+      {chapter.featureTermId && (
+        <Link
+          href={`/glossary#${chapter.featureTermId}` as never}
+          className="rounded-full border border-ink/30 px-3 py-1 hover:border-accent hover:text-accent"
+        >
+          🔍 термин
+        </Link>
+      )}
     </div>
   );
 }

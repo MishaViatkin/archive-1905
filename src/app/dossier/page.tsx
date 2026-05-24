@@ -2,6 +2,19 @@ import Link from "next/link";
 import { getEnterprises } from "@/lib/content";
 import { Stamp, StampCircle } from "@/components/ui/Stamp";
 
+// Map enterprise id → relevant chronicle chapter + key person.
+// Used by the chip links to deep-link instead of dumping the user
+// at the top of /chronicle and /network.
+const ENTERPRISE_LINKS: Record<
+  string,
+  { chapter?: string; person?: string; personName?: string }
+> = {
+  viz: { chapter: "viz-strike", person: "syromolotov", personName: "Сыромолотов" },
+  makarov: { chapter: "council" },
+  yates: { chapter: "council" },
+  loginov: { chapter: "council" },
+};
+
 export default function DossierPage() {
   const enterprises = getEnterprises();
 
@@ -75,18 +88,40 @@ export default function DossierPage() {
               >
                 📍 показать на карте
               </Link>
-              <Link
-                href={"/chronicle" as never}
-                className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
-              >
-                🕰 в хронике
-              </Link>
-              <Link
-                href={"/network" as never}
-                className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
-              >
-                👥 фигуранты
-              </Link>
+              {(() => {
+                const links = ENTERPRISE_LINKS[e.id];
+                const chronicleHref = links?.chapter
+                  ? `/chronicle#${links.chapter}`
+                  : "/chronicle";
+                const chronicleLabel =
+                  e.id === "viz"
+                    ? "🕰 стачка 7–14 мая"
+                    : links?.chapter
+                      ? "🕰 совет 16 ноября"
+                      : "🕰 в хронике";
+                const personHref = links?.person
+                  ? `/network?focus=${links.person}`
+                  : "/network";
+                const personLabel = links?.personName
+                  ? `👥 ${links.personName}`
+                  : "👥 фигуранты";
+                return (
+                  <>
+                    <Link
+                      href={chronicleHref as never}
+                      className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
+                    >
+                      {chronicleLabel}
+                    </Link>
+                    <Link
+                      href={personHref as never}
+                      className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
+                    >
+                      {personLabel}
+                    </Link>
+                  </>
+                );
+              })()}
             </div>
           </article>
         ))}

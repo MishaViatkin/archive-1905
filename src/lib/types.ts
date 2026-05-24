@@ -105,6 +105,10 @@ export interface ChronicleChapter {
   quote?: { text: string; source: string; sourceId?: string };
   marginNote?: string;
   placeId?: string;
+  /** Главное лицо сцены — id из people.json. Ведёт на /network?focus=… */
+  featurePersonId?: string;
+  /** Главный термин сцены — id из glossary.json. Ведёт на /glossary#… */
+  featureTermId?: string;
 }
 
 export interface Enterprise {

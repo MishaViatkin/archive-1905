@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getConnections, getPeople } from "@/lib/content";
 import { NetworkGraph } from "@/components/network/NetworkGraph";
 
@@ -17,11 +18,20 @@ export default function NetworkPage() {
         <p className="mt-3 max-w-2xl text-ink-faded">
           14 фигурантов революции 1905 года в Екатеринбурге: подпольщики,
           власть, наблюдатели, жертвы — плюс четыре историка, чьи труды легли
-          в основу работы. Кликните по карточке — откроется биография и связи.
+          в основу работы. Переход по ссылке «👥 …» из любого раздела
+          подсвечивает нужную карточку.
         </p>
       </header>
 
-      <NetworkGraph people={people} connections={connections} />
+      <Suspense
+        fallback={
+          <div className="mt-10 doc-card rounded-sm p-12 text-center text-sm text-ink-faded">
+            Загрузка картотеки…
+          </div>
+        }
+      >
+        <NetworkGraph people={people} connections={connections} />
+      </Suspense>
     </div>
   );
 }
