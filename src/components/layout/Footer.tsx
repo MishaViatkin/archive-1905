@@ -12,7 +12,7 @@ export function Footer() {
             <p className="font-display text-base text-ink">АРХИВ 1905</p>
             <p className="mt-2 text-xs leading-relaxed">
               Цифровое расследование по аналитической работе УрФУ, кафедра
-              отечественной истории, 2025. Все цифры сопровождаются ссылкой на
+              отечественной истории. Все цифры сопровождаются ссылкой на
               источник; лакуны не скрываются. Третья редакция, расширенная.
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">

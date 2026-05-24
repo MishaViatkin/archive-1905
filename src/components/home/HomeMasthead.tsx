@@ -9,7 +9,7 @@ export function HomeMasthead() {
       <div className="flex flex-wrap items-end justify-between gap-4 text-xs uppercase tracking-[0.2em] text-ink-faded">
         <span>Выпуск № 1 · Третья редакция</span>
         <span>Цена · бесплатно для исследования</span>
-        <span>Екатеринбург · 1905–1907 · 2025</span>
+        <span>Екатеринбург · 1905–1907</span>
       </div>
 
       <motion.h1

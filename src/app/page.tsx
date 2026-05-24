@@ -35,7 +35,7 @@ export default function HomePage() {
               столичных событий
             </p>
             <p className="mt-3 text-sm uppercase tracking-[0.25em] text-ink-faded">
-              Передовица номера · Аналитическая работа УрФУ, 2025
+              Передовица номера · Аналитическая работа УрФУ
             </p>
 
             <div className="newspaper-cols mt-6 text-[0.95rem] leading-relaxed text-ink/90">
@@ -221,7 +221,7 @@ export default function HomePage() {
             протяжении следующего столетия.»
           </h2>
           <p className="mt-4 font-mono text-[10px] uppercase tracking-widest opacity-60">
-            Аннотация работы · УрФУ, 2025
+            Аннотация работы · УрФУ
           </p>
         </div>
       </AnimatedSection>
