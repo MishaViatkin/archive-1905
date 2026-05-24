@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getEnterprises } from "@/lib/content";
 import { Stamp, StampCircle } from "@/components/ui/Stamp";
 
@@ -66,6 +67,27 @@ export default function DossierPage() {
                 Очаг стачки
               </Stamp>
             )}
+
+            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-dashed border-ink/20 pt-3 text-[10px] uppercase tracking-widest text-ink-faded">
+              <Link
+                href="/atlas"
+                className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
+              >
+                📍 на карте
+              </Link>
+              <Link
+                href="/chronicle"
+                className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
+              >
+                🕰 в хронике
+              </Link>
+              <Link
+                href="/network"
+                className="rounded-full border border-ink/30 px-2.5 py-0.5 hover:border-accent hover:text-accent"
+              >
+                👥 фигуранты
+              </Link>
+            </div>
           </article>
         ))}
       </div>

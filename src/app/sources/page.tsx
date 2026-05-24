@@ -1,11 +1,12 @@
 import { getSources } from "@/lib/content";
 import type { SourceType } from "@/lib/types";
+import { CopyButton } from "@/components/effects/CopyButton";
 
 const TYPE_LABEL: Record<SourceType, string> = {
   archive: "Архивный фонд",
   collection: "Документальный сборник",
-  periodical: "Периодическая печать",
-  research: "Исследование",
+  periodical: "Научная статья",
+  research: "Монография",
 };
 
 const TYPE_COLOR: Record<SourceType, string> = {
@@ -15,7 +16,7 @@ const TYPE_COLOR: Record<SourceType, string> = {
   research: "#3a4a3a",
 };
 
-const ORDER: SourceType[] = ["archive", "collection", "periodical", "research"];
+const ORDER: SourceType[] = ["collection", "research", "periodical", "archive"];
 
 export default function SourcesPage() {
   const sources = getSources();
@@ -24,7 +25,7 @@ export default function SourcesPage() {
     <div className="mx-auto max-w-7xl px-4 py-10">
       <header className="rule-thick-thin pt-3">
         <p className="font-display text-xs uppercase tracking-[0.3em] text-ink-faded">
-          Раздел VI
+          Раздел VIII
         </p>
         <h1 className="mt-1 font-display text-5xl text-ink md:text-6xl">
           Картотека
@@ -32,7 +33,8 @@ export default function SourcesPage() {
         <p className="mt-3 max-w-2xl text-ink-faded">
           {sources.length} источников: документальные сборники, монографии и
           рецензируемые научные статьи. Все — опубликованные и общедоступные;
-          архивных шифров работа сознательно не приводит.
+          архивных шифров работа сознательно не приводит. Нажмите «копировать»,
+          чтобы получить цитату для своей работы.
         </p>
       </header>
 
@@ -84,9 +86,15 @@ export default function SourcesPage() {
                         {s.fund}
                       </p>
                     )}
-                    <p className="mt-3 border-t border-dashed border-ink/30 pt-1.5 font-mono text-[10px] uppercase tracking-widest text-ink-faded">
-                      id · {s.id}
-                    </p>
+                    <div className="mt-3 flex items-center gap-2 border-t border-dashed border-ink/30 pt-2">
+                      <a
+                        href={`#${s.id}`}
+                        className="font-mono text-[10px] uppercase tracking-widest text-ink-faded hover:text-accent"
+                      >
+                        #{s.id}
+                      </a>
+                      <CopyButton value={s.citation} />
+                    </div>
                   </article>
                 ))}
               </div>

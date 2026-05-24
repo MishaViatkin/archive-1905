@@ -91,7 +91,10 @@ export default function LegacyPage() {
               y={20}
               className="relative mb-8"
             >
-              <span className="absolute -left-[2.4rem] top-1 h-4 w-4 rounded-full border-2 border-accent bg-paper" />
+              <span
+                id={l.id}
+                className="absolute -left-[2.4rem] top-1 h-4 w-4 scroll-mt-24 rounded-full border-2 border-accent bg-paper"
+              />
               <p
                 className="font-display text-sm uppercase tracking-[0.2em]"
                 style={{ color: TYPE_COLOR[l.type] }}
@@ -111,6 +114,12 @@ export default function LegacyPage() {
                 </span>
                 <span>·</span>
                 <span>{l.source}</span>
+                <a
+                  href={`#${l.id}`}
+                  className="ml-auto rounded border border-ink/20 px-2 py-0.5 font-mono text-[10px] hover:border-accent hover:text-accent"
+                >
+                  #{l.id}
+                </a>
               </div>
             </AnimatedSection>
           ))}

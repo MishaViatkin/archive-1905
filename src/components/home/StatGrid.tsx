@@ -14,7 +14,7 @@ export function StatGrid({ stats }: StatGridProps) {
       {stats.map((s) => (
         <StaggerItem
           key={s.label}
-          className="doc-card relative rounded-sm p-4 transition hover:-translate-y-0.5 hover:shadow-lg"
+          className="doc-card relative rounded-sm p-4"
         >
           <p className="font-display text-4xl font-bold text-accent md:text-5xl">
             <CountUp to={s.value} duration={1500} />

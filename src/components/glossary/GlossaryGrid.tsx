@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { GlossaryTerm } from "@/lib/types";
+import { CopyButton } from "@/components/effects/CopyButton";
 
 export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
   const [filter, setFilter] = useState("");
@@ -59,6 +60,18 @@ export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
                   {t.source}
                 </p>
               )}
+              <div className="mt-3 flex items-center gap-2">
+                <a
+                  href={`#${t.id}`}
+                  className="font-mono text-[10px] uppercase tracking-widest text-ink-faded hover:text-accent"
+                >
+                  #{t.id}
+                </a>
+                <CopyButton
+                  value={`${t.term} — ${t.definition}`}
+                  label="копировать"
+                />
+              </div>
             </motion.article>
           ))}
         </motion.div>
