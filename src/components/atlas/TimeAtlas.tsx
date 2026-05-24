@@ -207,7 +207,10 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
   }, [events, selectedId]);
 
   return (
-    <div ref={mapRef} className="mt-10 grid gap-8 scroll-mt-24 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div
+      ref={mapRef}
+      className="mt-10 grid items-start gap-8 scroll-mt-24 lg:grid-cols-[minmax(0,1fr)_320px]"
+    >
       <div className="doc-card relative overflow-hidden rounded-sm">
         <svg
           viewBox={`0 0 ${SVG_W} ${SVG_H}`}
@@ -353,7 +356,6 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
               <g
                 key={p.id}
                 onClick={() => setSelectedId(p.id)}
-                onMouseEnter={() => setSelectedId(p.id)}
                 style={{ cursor: "pointer" }}
                 aria-label={p.name}
               >
@@ -451,7 +453,7 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
         </svg>
       </div>
 
-      <aside className="space-y-4">
+      <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
         <motion.div
           key={`${cur.year}-${cur.month}`}
           initial={{ opacity: 0, y: -8 }}
@@ -482,8 +484,8 @@ export function TimeAtlas({ places, events }: TimeAtlasProps) {
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-              className="doc-card rounded-sm p-5"
+              transition={{ duration: 0.18 }}
+              className="doc-card min-h-[260px] rounded-sm p-5"
             >
               <div className="flex items-start justify-between">
                 <div>
