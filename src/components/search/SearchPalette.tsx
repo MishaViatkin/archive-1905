@@ -26,8 +26,24 @@ const KIND_COLOR: Record<SearchItemKind, string> = {
   legacy: "#a4271c",
 };
 
+// Russian-friendly normalization: lowercase + remove diacritics + ё→е + й→и.
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ё/g, "е")
+    .replace(/й/g, "и");
+}
+
 interface SearchPaletteProps {
   index: SearchItem[];
+}
+
+interface ScoredItem {
+  item: SearchItem;
+  score: number;
+  hits: { titleHit: number; subtitleHit: number; bodyHit: number };
 }
 
 export function SearchPalette({ index }: SearchPaletteProps) {
@@ -37,9 +53,22 @@ export function SearchPalette({ index }: SearchPaletteProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  // Pre-normalize the whole index once — avoids work on every keystroke.
+  const normalizedIndex = useMemo(
+    () =>
+      index.map((item) => ({
+        item,
+        title: normalize(item.title),
+        subtitle: normalize(item.subtitle ?? ""),
+        body: normalize(item.body ?? ""),
+      })),
+    [index],
+  );
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      const isK = e.key.toLowerCase() === "k" || e.key === "л"; // RU layout
+      if ((e.metaKey || e.ctrlKey) && isK) {
         e.preventDefault();
         setOpen((o) => !o);
       } else if (e.key === "Escape") {
@@ -53,8 +82,6 @@ export function SearchPalette({ index }: SearchPaletteProps) {
   useEffect(() => {
     if (open) {
       const t = setTimeout(() => inputRef.current?.focus(), 50);
-      // Reset query/active on open. Wrapped in a microtask so React doesn't
-      // see a synchronous setState cascade inside the effect.
       Promise.resolve().then(() => {
         setQuery("");
         setActive(0);
@@ -64,24 +91,108 @@ export function SearchPalette({ index }: SearchPaletteProps) {
   }, [open]);
 
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return index.slice(0, 12);
-    return index
-      .map((item) => {
-        const hay = `${item.title} ${item.subtitle ?? ""} ${item.body ?? ""}`
-          .toLowerCase();
-        const idx = hay.indexOf(q);
-        return { item, idx };
-      })
-      .filter((r) => r.idx !== -1)
-      .sort((a, b) => a.idx - b.idx)
-      .slice(0, 30)
-      .map((r) => r.item);
-  }, [query, index]);
+    const q = normalize(query.trim());
+    if (!q) {
+      return normalizedIndex.slice(0, 12).map((n) => ({
+        item: n.item,
+        score: 0,
+        hits: { titleHit: -1, subtitleHit: -1, bodyHit: -1 },
+      })) as ScoredItem[];
+    }
+
+    // Multi-word AND: every space-separated token must match somewhere.
+    const tokens = q.split(/\s+/).filter(Boolean);
+
+    const scored: ScoredItem[] = [];
+    for (const n of normalizedIndex) {
+      let totalScore = 0;
+      const hits = { titleHit: -1, subtitleHit: -1, bodyHit: -1 };
+      let allMatched = true;
+
+      for (const t of tokens) {
+        const titleHit = n.title.indexOf(t);
+        const subtitleHit = n.subtitle.indexOf(t);
+        const bodyHit = n.body.indexOf(t);
+
+        if (titleHit === -1 && subtitleHit === -1 && bodyHit === -1) {
+          allMatched = false;
+          break;
+        }
+
+        // Higher score for matches earlier and in stronger fields.
+        if (titleHit !== -1) {
+          totalScore += 1000 - titleHit;
+          if (titleHit === 0 || /\s/.test(n.title[titleHit - 1] ?? " ")) {
+            totalScore += 400; // word-boundary boost
+          }
+          if (hits.titleHit === -1) hits.titleHit = titleHit;
+        } else if (subtitleHit !== -1) {
+          totalScore += 400 - subtitleHit;
+          if (hits.subtitleHit === -1) hits.subtitleHit = subtitleHit;
+        } else if (bodyHit !== -1) {
+          totalScore += 100 - Math.min(bodyHit, 99);
+          if (hits.bodyHit === -1) hits.bodyHit = bodyHit;
+        }
+      }
+
+      if (allMatched) {
+        scored.push({ item: n.item, score: totalScore, hits });
+      }
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 30);
+  }, [query, normalizedIndex]);
 
   const onItemSelect = (item: SearchItem) => {
     setOpen(false);
     router.push(item.href as never);
+  };
+
+  // Highlight helper — wraps every token occurrence in <mark>.
+  const tokens = normalize(query.trim())
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const highlight = (raw: string | undefined) => {
+    if (!raw) return null;
+    if (tokens.length === 0) return raw;
+    const norm = normalize(raw);
+    const ranges: [number, number][] = [];
+    for (const t of tokens) {
+      let from = 0;
+      while (from <= norm.length) {
+        const idx = norm.indexOf(t, from);
+        if (idx === -1) break;
+        ranges.push([idx, idx + t.length]);
+        from = idx + t.length;
+      }
+    }
+    if (ranges.length === 0) return raw;
+    ranges.sort((a, b) => a[0] - b[0]);
+    // Merge overlaps
+    const merged: [number, number][] = [];
+    for (const r of ranges) {
+      const last = merged[merged.length - 1];
+      if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]);
+      else merged.push([...r]);
+    }
+    const out: React.ReactNode[] = [];
+    let pos = 0;
+    merged.forEach(([a, b], i) => {
+      if (a > pos) out.push(raw.slice(pos, a));
+      out.push(
+        <mark
+          key={`m-${i}`}
+          className="bg-accent/25 text-ink rounded-[2px] px-[1px]"
+        >
+          {raw.slice(a, b)}
+        </mark>,
+      );
+      pos = b;
+    });
+    if (pos < raw.length) out.push(raw.slice(pos));
+    return out;
   };
 
   return (
@@ -93,7 +204,7 @@ export function SearchPalette({ index }: SearchPaletteProps) {
         aria-label="Открыть поиск"
       >
         <span>🔎</span>
-        <span>Поиск по архиву</span>
+        <span>Поиск</span>
         <kbd className="rounded border border-ink/30 bg-paper px-1.5 py-0.5 font-mono text-[10px]">
           ⌘K
         </kbd>
@@ -149,13 +260,27 @@ export function SearchPalette({ index }: SearchPaletteProps) {
                       setActive((a) => Math.max(0, a - 1));
                     } else if (e.key === "Enter") {
                       e.preventDefault();
-                      const item = results[active];
-                      if (item) onItemSelect(item);
+                      const r = results[active];
+                      if (r) onItemSelect(r.item);
                     }
                   }}
-                  placeholder="Свердлов, погром, ВИЗ, лакуна…"
+                  placeholder="Свердлов · 1905 · ВИЗ · Манифест · Совет"
                   className="w-full bg-transparent px-3 py-3 font-display text-lg text-ink outline-none placeholder:text-ink-faded/60"
                 />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery("");
+                      setActive(0);
+                      inputRef.current?.focus();
+                    }}
+                    className="mr-2 rounded p-1 text-xs text-ink-faded hover:text-ink"
+                    aria-label="Очистить"
+                  >
+                    ×
+                  </button>
+                )}
                 <kbd className="hidden rounded border border-ink/30 px-1.5 py-0.5 font-mono text-[10px] text-ink-faded sm:inline">
                   esc
                 </kbd>
@@ -163,52 +288,63 @@ export function SearchPalette({ index }: SearchPaletteProps) {
 
               <div className="max-h-[60vh] overflow-y-auto">
                 {results.length === 0 ? (
-                  <p className="px-4 py-8 text-center text-sm text-ink-faded">
-                    Ничего не найдено. Попробуйте «свердлов», «1905», «гасо».
-                  </p>
+                  <div className="px-4 py-8 text-center text-sm text-ink-faded">
+                    <p>Ничего не найдено по запросу «{query}».</p>
+                    <p className="mt-2 text-xs">
+                      Попробуйте: <em>свердлов</em>, <em>виз</em>,{" "}
+                      <em>манифест</em>, <em>совет</em>, <em>генеральная репетиция</em>.
+                    </p>
+                  </div>
                 ) : (
-                  <ul>
-                    {results.map((item, i) => (
-                      <li key={item.id}>
-                        <Link
-                          href={item.href as never}
-                          onClick={() => setOpen(false)}
-                          onMouseEnter={() => setActive(i)}
-                          className={`flex items-start gap-3 border-b border-ink/10 px-4 py-3 text-sm transition ${
-                            i === active ? "bg-accent/5" : ""
-                          }`}
-                        >
-                          <span
-                            className="mt-0.5 rounded-sm px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-paper"
-                            style={{ background: KIND_COLOR[item.kind] }}
+                  <>
+                    <p className="px-4 pt-2 font-mono text-[10px] uppercase tracking-widest text-ink-faded">
+                      {query.trim()
+                        ? `найдено ${results.length}`
+                        : "недавнее / случайное"}
+                    </p>
+                    <ul>
+                      {results.map((r, i) => (
+                        <li key={r.item.id}>
+                          <Link
+                            href={r.item.href as never}
+                            onClick={() => setOpen(false)}
+                            onMouseEnter={() => setActive(i)}
+                            className={`flex items-start gap-3 border-b border-ink/10 px-4 py-3 text-sm transition ${
+                              i === active ? "bg-accent/5" : ""
+                            }`}
                           >
-                            {KIND_LABEL[item.kind]}
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block font-display text-ink">
-                              {item.title}
+                            <span
+                              className="mt-0.5 rounded-sm px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-paper"
+                              style={{ background: KIND_COLOR[r.item.kind] }}
+                            >
+                              {KIND_LABEL[r.item.kind]}
                             </span>
-                            {item.subtitle && (
-                              <span className="block truncate text-xs text-ink-faded">
-                                {item.subtitle}
+                            <span className="min-w-0 flex-1">
+                              <span className="block font-display text-ink">
+                                {highlight(r.item.title)}
                               </span>
-                            )}
-                            {item.body && (
-                              <span className="mt-0.5 block truncate text-xs text-ink/70">
-                                {item.body}
-                              </span>
-                            )}
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                              {r.item.subtitle && (
+                                <span className="block truncate text-xs text-ink-faded">
+                                  {highlight(r.item.subtitle)}
+                                </span>
+                              )}
+                              {r.item.body && (
+                                <span className="mt-0.5 block truncate text-xs text-ink/70">
+                                  {highlight(r.item.body)}
+                                </span>
+                              )}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 )}
               </div>
 
               <div className="flex items-center justify-between border-t border-ink/20 px-4 py-2 text-[10px] uppercase tracking-widest text-ink-faded">
                 <span>{index.length} записей в каталоге</span>
-                <span className="font-mono">↑ ↓ выбор · ↵ открыть</span>
+                <span className="font-mono">↑ ↓ выбор · ↵ открыть · esc</span>
               </div>
             </motion.div>
           </motion.div>
