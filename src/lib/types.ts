@@ -180,3 +180,12 @@ export interface SearchItem {
   body?: string;
   href: string;
 }
+
+export interface QuizQuestion {
+  q: string;
+  options: string[];
+  /** zero-based index of the correct option */
+  correct: number;
+  fact: string;
+  source: string;
+}

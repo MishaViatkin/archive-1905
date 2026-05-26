@@ -54,4 +54,10 @@ export const mainNav: NavSection[] = [
     number: "VIII",
     description: "9 источников: сборники, монографии, статьи",
   },
+  {
+    href: "/quiz",
+    label: "Квиз",
+    number: "IX",
+    description: "10 вопросов по работе со справками к ответам",
+  },
 ];

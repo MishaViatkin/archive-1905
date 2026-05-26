@@ -13,6 +13,7 @@ const SHORT: Record<string, string> = {
   "/legacy": "Наследие",
   "/glossary": "Словарь",
   "/sources": "Карт.",
+  "/quiz": "Квиз",
 };
 
 export function MobileNav() {
